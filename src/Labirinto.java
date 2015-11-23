@@ -1,67 +1,17 @@
 
-import unused.StdOut;
-
-/******************************************************************************
- *  Compilation:  javac Graph.java        
- *  Execution:    java Graph input.txt
- *  Dependencies: Bag.java In.java StdOut.java
- *  Data files:   http://algs4.cs.princeton.edu/41graph/tinyG.txt
- *
- *  A graph, implemented using an array of sets.
- *  Parallel edges and self-loops allowed.
- *
- *  % java Graph tinyG.txt
- *  13 vertices, 13 edges 
- *  0: 6 2 1 5 
- *  1: 0 
- *  2: 0 
- *  3: 5 4 
- *  4: 5 6 3 
- *  5: 3 4 0 
- *  6: 0 4 
- *  7: 8 
- *  8: 7 
- *  9: 11 10 12 
- *  10: 9 
- *  11: 9 12 
- *  12: 11 9 
- *
- *  % java Graph mediumG.txt
- *  250 vertices, 1273 edges 
- *  0: 225 222 211 209 204 202 191 176 163 160 149 114 97 80 68 59 58 49 44 24 15 
- *  1: 220 203 200 194 189 164 150 130 107 72 
- *  2: 141 110 108 86 79 51 42 18 14 
- *  ...
- *  
- ******************************************************************************/
+import java.util.ArrayList;
 
 
-/**
- *  The <tt>Graph</tt> class represents an undirected graph of vertices
- *  named 0 through <em>V</em> - 1.
- *  It supports the following two primary operations: add an edge to the graph,
- *  iterate over all of the vertices adjacent to a vertex. It also provides
- *  methods for returning the number of vertices <em>V</em> and the number
- *  of edges <em>E</em>. Parallel edges and self-loops are permitted.
- *  <p>
- *  This implementation uses an adjacency-lists representation, which 
- *  is a vertex-indexed array of {@link Bag} objects.
- *  All operations take constant time (in the worst case) except
- *  iterating over the vertices adjacent to a given vertex, which takes
- *  time proportional to the number of such vertices.
- *  <p>
- *  For additional documentation, see <a href="http://algs4.cs.princeton.edu/41graph">Section 4.1</a>
- *  of <i>Algorithms, 4th Edition</i> by Robert Sedgewick and Kevin Wayne.
- *
- *  @author Robert Sedgewick
- *  @author Kevin Wayne
- */
-public class Graph {
+public class Labirinto implements ADTLabirinto{
     private static final String NEWLINE = System.getProperty("line.separator");
 
     private final int V;
     private int E;
-    private Bag<Integer>[] adj;
+    private ArrayList<Integer>[] adj;
+    private int nodoPlayer;
+    private int nodoItem;
+    private boolean visited[];
+    private StringBuilder caminhoItemPlayer;
     
     /**
      * Initializes an empty graph with <tt>V</tt> vertices and 0 edges.
@@ -70,13 +20,13 @@ public class Graph {
      * @param  V number of vertices
      * @throws IllegalArgumentException if <tt>V</tt> < 0
      */
-    public Graph(int V) {
+    public Labirinto(int V) {
         if (V < 0) throw new IllegalArgumentException("Number of vertices must be nonnegative");
         this.V = V;
         this.E = 0;
-        adj = (Bag<Integer>[]) new Bag[V];
+        adj = (ArrayList<Integer>[]) new ArrayList[V];
         for (int v = 0; v < V; v++) {
-            adj[v] = new Bag<Integer>();
+            adj[v] = new ArrayList<Integer>();
         }
     }
 
@@ -90,7 +40,7 @@ public class Graph {
      * @throws IndexOutOfBoundsException if the endpoints of any edge are not in prescribed range
      * @throws IllegalArgumentException if the number of vertices or edges is negative
      */
-    public Graph(In in) {
+    public Labirinto(In in) {
         this(in.readInt());
         int E = in.readInt();
         if (E < 0) throw new IllegalArgumentException("Number of edges must be nonnegative");
@@ -101,26 +51,17 @@ public class Graph {
         }
     }
 
-    /**
-     * Initializes a new graph that is a deep copy of <tt>G</tt>.
-     *
-     * @param  G the graph to copy
-     */
-    public Graph(Graph G) {
-        this(G.V());
-        this.E = G.E();
-        for (int v = 0; v < G.V(); v++) {
-            // reverse so that adjacency list is in same order as original
-            Stack<Integer> reverse = new Stack<Integer>();
-            for (int w : G.adj[v]) {
-                reverse.push(w);
-            }
-            for (int w : reverse) {
-                adj[v].add(w);
-            }
-        }
+    @Override
+    public void ADTLabirinto(int V) {
+        
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
+    public void ADTLabirinto(In in) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
     /**
      * Returns the number of vertices in this graph.
      *
@@ -159,8 +100,7 @@ public class Graph {
         adj[v].add(w);
         adj[w].add(v);
     }
-
-
+ 
     /**
      * Returns the vertices adjacent to vertex <tt>v</tt>.
      *
@@ -185,7 +125,6 @@ public class Graph {
         return adj[v].size();
     }
 
-
     /**
      * Returns a string representation of this graph.
      *
@@ -204,15 +143,102 @@ public class Graph {
         }
         return s.toString();
     }
+    
+    public String toStringNode(int V){
+        StringBuilder s = new StringBuilder();
+        for (int w : adj[V]) {
+            s.append(w + " ");
+        }
+        return s.toString();
+    }
 
+
+    @Override
+    public void insereObjeto(int V) {
+        this.nodoItem = V;
+    }
+
+    @Override
+    public void inserePessoa(int V) {
+        this.nodoPlayer = V;
+    }
+
+    public String buscaCaminhoDFS(int P) {
+        visited[P] = true;
+        System.out.println(this.toStringNode(P));
+                
+        for (int j = 0; j < adj[P].size(); j++){          
+            if (adj[P].get(j) == this.nodoItem){
+                this.caminhoItemPlayer.append(" -> " + P);
+                return String.valueOf(adj[P].get(j));
+            }
+            
+            if (visited[adj[P].get(j)] == false){
+                String caminho = this.buscaCaminhoDFS(adj[P].get(j));
+                if (caminho != null){
+                    this.caminhoItemPlayer.append(" -> " + caminho);
+                }
+                
+            }
+        }
+        
+        return null;
+    }
+    
+    /*
+    
+    */
+    public int getNodoItem(){
+        return this.nodoItem;
+    }
+    
+    public int getNodoPlayer(){
+        return this.nodoPlayer;
+    }
 
     /**
      * Unit tests the <tt>Graph</tt> data type.
      */
     public static void main(String[] args) {
-        In in = new In(args[0]);
-        Graph G = new Graph(in);
-        StdOut.println(G);
+        Labirinto L = new Labirinto(15);
+        L.visited = new boolean[15];
+        
+        for(boolean w : L.visited){
+            w = false;
+        }
+        
+        L.caminhoItemPlayer = new StringBuilder();
+        
+        //L.addEdge(0, 1);
+        L.addEdge(0, 2);
+        //L.addEdge(0, 3);
+        //L.addEdge(3, 6);
+              
+        //L.addEdge(4, 3);
+        
+        L.addEdge(5, 2);
+
+        //L.addEdge(7, 8);
+        //L.addEdge(7, 9);
+        L.addEdge(7, 5);
+        //L.addEdge(9, 10);
+        //L.addEdge(10, 12);
+        
+       
+        L.insereObjeto(7);
+        L.inserePessoa(0);
+        
+        System.out.println(L);
+        
+        // System.out.println("Item está na posição: " + L.getNodoItem());
+        // System.out.println("Player está na posição: " + L.getNodoPlayer());
+        
+        L.caminhoItemPlayer.append(L.nodoPlayer);
+        L.buscaCaminhoDFS(L.nodoPlayer);
+        
+        System.out.println(L.caminhoItemPlayer.toString());
+        
+        
     }
 
 }
