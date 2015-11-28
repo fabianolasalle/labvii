@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.concurrent.ThreadLocalRandom;
 
-import unused.In;
 
 
 public class Labirinto implements ADTLabirinto{
@@ -43,7 +42,22 @@ public class Labirinto implements ADTLabirinto{
     
     public Labirinto(int V, boolean random){
         this(V);
-        int randomVertices = ThreadLocalRandom.current().nextInt(0, 2 + 1);
+        int complexity = Math.round(V * 0.3f);
+        
+        for (int i = 0; i < V; i++){
+            int randomDepth = 1;
+            if (complexity > 1){
+                randomDepth = ThreadLocalRandom.current().nextInt(1, complexity);
+            }
+            
+            
+            for (int j = 0; j <= randomDepth; j++){
+                int randomChild = ThreadLocalRandom.current().nextInt(0, V);
+                if (!adj[i].contains(randomChild) && randomChild != i){
+                    this.addEdge(i, randomChild);
+                }
+            }
+        }
     }
 
     /**  
@@ -112,9 +126,12 @@ public class Labirinto implements ADTLabirinto{
     public void addEdge(int v, int w) {
         validateVertex(v);
         validateVertex(w);
-        E++;
-        adj[v].add(w);
-        adj[w].add(v);
+        
+        if (!adj[v].contains(w)){
+            E++;
+            adj[v].add(w);
+            adj[w].add(v);
+        }
     }
  
     /**
@@ -188,9 +205,9 @@ public class Labirinto implements ADTLabirinto{
          */
         for (int j = 0; j < adj[pontoPartidaBusca].size(); j++){   
         	
-        	// Se o filho do nodo pontoPartidaBusca é o mesmo 
-        	// nodo em que se encontra o nodoItem, então retornamos
-        	// pois achamos um caminho até nodoItem
+            // Se o filho do nodo pontoPartidaBusca é o mesmo 
+            // nodo em que se encontra o nodoItem, então retornamos
+            // pois achamos um caminho até nodoItem
             if (adj[pontoPartidaBusca].get(j) == this.nodoItem){
             	return pontoPartidaBusca;
             }
@@ -219,6 +236,38 @@ public class Labirinto implements ADTLabirinto{
         return -1;
     }
     
+    // Retorna em string o caminho necessário para achar o item
+    public String showPathToItem(){
+        // TODO: Incluir validação, existe player, existe item, existe grafo
+               
+        // Inicia a busca! ◉‿◉
+        this.buscaCaminhoDFS(this.nodoPlayer);
+        
+        StringBuilder finalpath = new StringBuilder();
+        
+        // Se o item está numa ilha, não houve caminho possível
+        // e portanto devemos informar
+        if (this.path.size() < 1){
+            finalpath.append("Não há caminho até o item do ponto de partida informado.");
+            return finalpath.toString();
+        }
+
+        // Atribui jogador e item nas posições necessárias
+        this.path.addFirst(this.nodoItem);
+        this.path.addLast(this.nodoPlayer);        
+        
+        // Percorre ao contrário pois adicionamos do final
+        // até o início.
+        for(int i = (this.path.size() - 1); i >= 0; i--){
+            finalpath.append(this.path.get(i));
+            if (i > 0){
+                finalpath.append(" -> ");
+            }
+        }
+        
+        return finalpath.toString();
+    }
+    
     /*
     
     */
@@ -234,8 +283,8 @@ public class Labirinto implements ADTLabirinto{
      * Unit tests the <tt>Graph</tt> data type.
      */
     public static void main(String[] args) {
-        Labirinto L = new Labirinto(15);
-        L.visited = new boolean[15];
+        Labirinto L = new Labirinto(5, true);
+        /*L.visited = new boolean[15];
         L.path = new LinkedList<Integer>();
 
         for(boolean w : L.visited){
@@ -249,21 +298,23 @@ public class Labirinto implements ADTLabirinto{
         L.addEdge(7, 4);
         L.addEdge(7, 5);
         L.addEdge(9, 7);
-        L.addEdge(10, 9);
+        L.addEdge(10, 9);*/
         
         // Insere o objeto e a pessoa.
-        L.insereObjeto(7);
+        L.insereObjeto(2);
         L.inserePessoa(0);
         
         // Debug
         System.out.println(L);
-        System.out.println("Item está na posição: " + L.getNodoItem());
-        System.out.println("Player está na posição: " + L.getNodoPlayer());
+        System.out.println(L.showPathToItem());
+        // System.out.println("Item está na posição: " + L.getNodoItem());
+        // System.out.println("Player está na posição: " + L.getNodoPlayer());
         
         // Como é uma lista e a minha busca vai retornando do
         // caminho mais profundo até o mais próximo do player,
         // adiciono primeiro o nodo final.
-        L.path.add(L.nodoItem);
+    
+        /*L.path.add(L.nodoItem);
         
         // Inicia a busca! ◉‿◉
         L.buscaCaminhoDFS(L.nodoPlayer);
@@ -284,7 +335,7 @@ public class Labirinto implements ADTLabirinto{
         }
         
         System.out.println(finalpath.toString());
-        
+        */
     }
 
 }

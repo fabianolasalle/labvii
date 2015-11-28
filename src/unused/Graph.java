@@ -1,4 +1,7 @@
 package unused;
+
+import com.ed2.lab7.In;
+
 /******************************************************************************
  *  Compilation:  javac Graph.java        
  *  Execution:    java Graph input.txt
