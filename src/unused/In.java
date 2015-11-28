@@ -1,3 +1,4 @@
+package unused;
 /******************************************************************************
  *  Compilation:  javac In.java
  *  Execution:    java In   (basic test --- see source for required files)
@@ -21,6 +22,8 @@ import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.regex.Pattern;
+
+import com.ed2.lab7.StdIn;
 
 /**
  *  <i>Input</i>. This class provides methods for reading strings

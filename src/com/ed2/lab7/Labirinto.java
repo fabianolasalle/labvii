@@ -1,5 +1,10 @@
+package com.ed2.lab7;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.concurrent.ThreadLocalRandom;
+
+import unused.In;
 
 
 public class Labirinto implements ADTLabirinto{
@@ -11,7 +16,7 @@ public class Labirinto implements ADTLabirinto{
     private int nodoPlayer;
     private int nodoItem;
     private boolean visited[];
-    private StringBuilder caminhoItemPlayer;
+    private LinkedList<Integer> path;
     
     /**
      * Initializes an empty graph with <tt>V</tt> vertices and 0 edges.
@@ -28,6 +33,17 @@ public class Labirinto implements ADTLabirinto{
         for (int v = 0; v < V; v++) {
             adj[v] = new ArrayList<Integer>();
         }
+        
+        this.visited = new boolean[V];
+        for(boolean w : this.visited){
+            w = false;
+        }
+        this.path = new LinkedList<Integer>();
+    }
+    
+    public Labirinto(int V, boolean random){
+        this(V);
+        int randomVertices = ThreadLocalRandom.current().nextInt(0, 2 + 1);
     }
 
     /**  
@@ -114,18 +130,6 @@ public class Labirinto implements ADTLabirinto{
     }
 
     /**
-     * Returns the degree of vertex <tt>v</tt>.
-     *
-     * @param  v the vertex
-     * @return the degree of vertex <tt>v</tt>
-     * @throws IndexOutOfBoundsException unless 0 <= v < V
-     */
-    public int degree(int v) {
-        validateVertex(v);
-        return adj[v].size();
-    }
-
-    /**
      * Returns a string representation of this graph.
      *
      * @return the number of vertices <em>V</em>, followed by the number of edges <em>E</em>,
@@ -163,26 +167,56 @@ public class Labirinto implements ADTLabirinto{
         this.nodoPlayer = V;
     }
 
-    public String buscaCaminhoDFS(int P) {
-        visited[P] = true;
-        System.out.println(this.toStringNode(P));
+    /**
+     * Busca recursivamente com Depth-first search pelo nodo do item, 
+     * a partir do parametro pontoPartidaBusca.
+     * 
+     * Como recursiva, considerar que a nomenclatura da variável
+     * é dada para indicar que a partir daquele nodo, haverá uma
+     * navegação aos vértices filho que não foram navegados ainda.
+     */
+    public int buscaCaminhoDFS(int pontoPartidaBusca) {
+    	/**
+    	 * Um array auxiliar é utilizado para marcar quais
+    	 * nodos foram visitados. Ao início
+    	 */
+        visited[pontoPartidaBusca] = true;
                 
-        for (int j = 0; j < adj[P].size(); j++){          
-            if (adj[P].get(j) == this.nodoItem){
-                this.caminhoItemPlayer.append(" -> " + P);
-                return String.valueOf(adj[P].get(j));
+        /**
+         * Loop para navegar entre os vertices do nodo indicado
+         * por pontoPartidaBusca.
+         */
+        for (int j = 0; j < adj[pontoPartidaBusca].size(); j++){   
+        	
+        	// Se o filho do nodo pontoPartidaBusca é o mesmo 
+        	// nodo em que se encontra o nodoItem, então retornamos
+        	// pois achamos um caminho até nodoItem
+            if (adj[pontoPartidaBusca].get(j) == this.nodoItem){
+            	return pontoPartidaBusca;
             }
             
-            if (visited[adj[P].get(j)] == false){
-                String caminho = this.buscaCaminhoDFS(adj[P].get(j));
-                if (caminho != null){
-                    this.caminhoItemPlayer.append(" -> " + caminho);
-                }
+            // Se o nodo filho ainda não foi visitado, recursivamente,
+            // vamos visitar o filho, como dita o DFS.
+            if (visited[adj[pontoPartidaBusca].get(j)] == false){
+            	// Como retorno, espero o ponto que enviei por parâmetro
+            	// para manter registro de onde eu passei com sucesso
+            	// para buscar o item.
+                int caminho = this.buscaCaminhoDFS(adj[pontoPartidaBusca].get(j));
                 
+                // Se o retorno foi um indice válido, então
+                // alimento o LinkedList com o caminho.
+                // e retorno o próprio pontoPartida para que a chamada anterior
+                // possa ter registro de onde passou.
+                if (caminho != -1){
+                	this.path.add(caminho);
+                	return pontoPartidaBusca;
+                }                
             }
         }
         
-        return null;
+        // Se eu não achei depois de iterar por todos os vértices filho do meu nodo
+        // então retorno -1 para indicar que ali não é caminho. (╯°□°)╯︵ ┻�?┻
+        return -1;
     }
     
     /*
@@ -195,49 +229,61 @@ public class Labirinto implements ADTLabirinto{
     public int getNodoPlayer(){
         return this.nodoPlayer;
     }
-
+    
     /**
      * Unit tests the <tt>Graph</tt> data type.
      */
     public static void main(String[] args) {
         Labirinto L = new Labirinto(15);
         L.visited = new boolean[15];
-        
+        L.path = new LinkedList<Integer>();
+
         for(boolean w : L.visited){
             w = false;
         }
         
-        L.caminhoItemPlayer = new StringBuilder();
-        
-        //L.addEdge(0, 1);
+        // Cria o grafo.
         L.addEdge(0, 2);
-        //L.addEdge(0, 3);
-        //L.addEdge(3, 6);
-              
-        //L.addEdge(4, 3);
-        
+        L.addEdge(4, 3);
         L.addEdge(5, 2);
-
-        //L.addEdge(7, 8);
-        //L.addEdge(7, 9);
+        L.addEdge(7, 4);
         L.addEdge(7, 5);
-        //L.addEdge(9, 10);
-        //L.addEdge(10, 12);
+        L.addEdge(9, 7);
+        L.addEdge(10, 9);
         
-       
+        // Insere o objeto e a pessoa.
         L.insereObjeto(7);
         L.inserePessoa(0);
         
+        // Debug
         System.out.println(L);
+        System.out.println("Item está na posição: " + L.getNodoItem());
+        System.out.println("Player está na posição: " + L.getNodoPlayer());
         
-        // System.out.println("Item está na posição: " + L.getNodoItem());
-        // System.out.println("Player está na posição: " + L.getNodoPlayer());
+        // Como é uma lista e a minha busca vai retornando do
+        // caminho mais profundo até o mais próximo do player,
+        // adiciono primeiro o nodo final.
+        L.path.add(L.nodoItem);
         
-        L.caminhoItemPlayer.append(L.nodoPlayer);
+        // Inicia a busca! ◉‿◉
         L.buscaCaminhoDFS(L.nodoPlayer);
         
-        System.out.println(L.caminhoItemPlayer.toString());
+        // Agora que percorremos de trás para frente
+        // basta adicionar o nodo do player, que é o nodo
+        // inicial.
+        L.path.add(L.nodoPlayer);
         
+        // Vamos percorrer invertidamente para ter o caminho
+        // do inicio ao fim!
+        StringBuilder finalpath = new StringBuilder();
+        for(int i = (L.path.size() - 1); i >= 0; i--){
+        	finalpath.append(L.path.get(i));
+        	if (i > 0){
+        		finalpath.append(" -> ");
+        	}
+        }
+        
+        System.out.println(finalpath.toString());
         
     }
 

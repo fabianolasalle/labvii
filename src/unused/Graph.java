@@ -1,6 +1,4 @@
-
-import unused.StdOut;
-
+package unused;
 /******************************************************************************
  *  Compilation:  javac Graph.java        
  *  Execution:    java Graph input.txt

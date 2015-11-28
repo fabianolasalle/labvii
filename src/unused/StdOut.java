@@ -14,6 +14,8 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 
+import com.ed2.lab7.StdIn;
+
 /**
  *  This class provides methods for printing strings and numbers to standard output.
  *  <p>

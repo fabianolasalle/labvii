@@ -1,5 +1,8 @@
+package unused;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+
+import com.ed2.lab7.StdIn;
 
 public class Bag<Item> implements Iterable<Item> {
     private Node<Item> first;    // beginning of bag

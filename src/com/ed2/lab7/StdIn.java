@@ -1,10 +1,13 @@
-import unused.StdOut;
+package com.ed2.lab7;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.regex.Pattern;
+
+import unused.In;
+import unused.StdOut;
 
 /**
  *  The <tt>StdIn</tt> class provides static methods for reading strings

@@ -1,3 +1,4 @@
+package unused;
 /******************************************************************************
  *  Compilation:  javac Stack.java
  *  Execution:    java Stack < input.txt
@@ -13,9 +14,10 @@
  *
  ******************************************************************************/
 
-import unused.StdOut;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+
+import com.ed2.lab7.StdIn;
 
 
 /**

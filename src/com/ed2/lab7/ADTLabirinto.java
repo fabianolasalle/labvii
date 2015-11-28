@@ -1,3 +1,6 @@
+package com.ed2.lab7;
+import unused.In;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -17,8 +20,6 @@ public interface ADTLabirinto {
     
     public Iterable<Integer> adj(int v);
     
-    public int degree(int v);
-    
     public String toString();
     
     public int E();
@@ -29,6 +30,6 @@ public interface ADTLabirinto {
     
     public void inserePessoa(int V);
     
-    public String buscaCaminhoDFS(int P);
+    public int buscaCaminhoDFS(int P);
     
 }
