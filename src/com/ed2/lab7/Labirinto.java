@@ -12,10 +12,11 @@ public class Labirinto implements ADTLabirinto{
     private final int V;
     private int E;
     private ArrayList<Integer>[] adj;
-    private int nodoPlayer;
-    private int nodoItem;
+    private Integer nodoPlayer = null;
+    private Integer nodoItem = null;
     private boolean visited[];
     private LinkedList<Integer> path;
+    private StringBuilder finalpath;
     
     /**
      * Initializes an empty graph with <tt>V</tt> vertices and 0 edges.
@@ -37,7 +38,8 @@ public class Labirinto implements ADTLabirinto{
         for(boolean w : this.visited){
             w = false;
         }
-        this.path = new LinkedList<Integer>();
+        this.path = new LinkedList<Integer>();  
+        this.finalpath = new StringBuilder();
     }
     
     public Labirinto(int V, boolean random){
@@ -177,11 +179,23 @@ public class Labirinto implements ADTLabirinto{
     @Override
     public void insereObjeto(int V) {
         this.nodoItem = V;
+        this.finalpath = new StringBuilder();
+        this.path.clear();
+        this.resetVisitedArray();
     }
 
     @Override
     public void inserePessoa(int V) {
         this.nodoPlayer = V;
+        this.finalpath = new StringBuilder();
+        this.path.clear();
+        this.resetVisitedArray();
+    }
+    
+    private void resetVisitedArray(){
+        for(boolean w : this.visited){
+            w = false;
+        }
     }
 
     /**
@@ -225,59 +239,79 @@ public class Labirinto implements ADTLabirinto{
                 // e retorno o próprio pontoPartida para que a chamada anterior
                 // possa ter registro de onde passou.
                 if (caminho != -1){
-                	this.path.add(caminho);
-                	return pontoPartidaBusca;
+                    this.path.add(caminho);
+                    return pontoPartidaBusca;
                 }                
             }
         }
         
         // Se eu não achei depois de iterar por todos os vértices filho do meu nodo
-        // então retorno -1 para indicar que ali não é caminho. (╯°□°)╯︵ ┻�?┻
+        // então retorno -1 para indicar que ali não é caminho. (╯°□°)╯︵ ┻┻
         return -1;
     }
     
+    public boolean isOnRoot(){
+        for (int i = 0; i < adj[this.nodoPlayer].size(); i++){
+            if (adj[this.nodoPlayer].get(i) == this.nodoItem){
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    
     // Retorna em string o caminho necessário para achar o item
     public String showPathToItem(){
-        // TODO: Incluir validação, existe player, existe item, existe grafo
-               
-        // Inicia a busca! ◉‿◉
-        this.buscaCaminhoDFS(this.nodoPlayer);
+        if (this.finalpath.length() > 0){
+            return this.finalpath.toString();
+        }
         
-        StringBuilder finalpath = new StringBuilder();
-        
-        // Se o item está numa ilha, não houve caminho possível
-        // e portanto devemos informar
-        if (this.path.size() < 1){
-            finalpath.append("Não há caminho até o item do ponto de partida informado.");
-            return finalpath.toString();
+        // Se o item tem conexão direta com o primeiro nodo
+        // não há porque navegar por DFS, pois pode inclusive
+        // gerar que não existe resultado.
+        if (this.isOnRoot()){
+            this.path.addFirst(this.nodoItem);
+            this.path.addLast(this.nodoPlayer);
+        } else {
+            // Inicia a busca! ◉‿◉
+            this.buscaCaminhoDFS(this.nodoPlayer);
+
+            // Se o item está numa ilha, não houve caminho possível
+            // e portanto devemos informar
+            if (this.path.size() < 1){
+                this.finalpath.append("Não há caminho até o item do ponto de partida informado.");
+                return this.finalpath.toString();
+            }
+
+            // Atribui jogador e item nas posições necessárias
+            this.path.addFirst(this.nodoItem);
+            this.path.addLast(this.nodoPlayer);        
         }
 
-        // Atribui jogador e item nas posições necessárias
-        this.path.addFirst(this.nodoItem);
-        this.path.addLast(this.nodoPlayer);        
-        
         // Percorre ao contrário pois adicionamos do final
         // até o início.
         for(int i = (this.path.size() - 1); i >= 0; i--){
-            finalpath.append(this.path.get(i));
+            this.finalpath.append(this.path.get(i));
             if (i > 0){
-                finalpath.append(" -> ");
+                this.finalpath.append(" -> ");
             }
         }
-        
-        return finalpath.toString();
+
+        return this.finalpath.toString();
     }
     
     /*
     
     */
-    public int getNodoItem(){
+    public Integer getNodoItem(){
         return this.nodoItem;
     }
     
-    public int getNodoPlayer(){
+    public Integer getNodoPlayer(){
         return this.nodoPlayer;
     }
+    
+    
     
     /**
      * Unit tests the <tt>Graph</tt> data type.
